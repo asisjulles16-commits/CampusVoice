@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusVoice</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ================= LOGIN / REGISTER ================= -->
+  <section id="authPage" class="auth-layout">
+    <div class="hero">
+      <a class="brand" href="#"><span class="logo">CV</span> CampusVoice</a>
+      <span class="eyebrow">YOUR CAMPUS. YOUR VOICE.</span>
+      <h1>Small ideas.<br><span>Real change.</span></h1>
+      <p>Share suggestions, support your classmates, and help make your campus better for everyone.</p>
+      <div class="hero-points">
+        <p>✓ Share ideas with your campus community</p>
+        <p>✓ Vote on suggestions that matter</p>
+        <p>✓ Follow ideas from proposal to implementation</p>
+      </div>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button id="loginTab" class="tab active" onclick="switchAuth('login')">Log in</button>
+        <button id="registerTab" class="tab" onclick="switchAuth('register')">Create account</button>
+      </div>
+
+      <form id="loginForm">
+        <h2>Welcome back!</h2>
+        <p class="muted">Log in to your account.</p>
+        <label for="loginId">Student ID or school email</label>
+        <input id="loginId" required placeholder="Student ID or school email">
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" required placeholder="Enter your password">
+        <button class="btn primary full" type="submit">Log in</button>
+        <p class="form-note">New here? <a href="#" onclick="switchAuth('register');return false">Create an account</a></p>
+      </form>
+
+      <form id="registerForm" class="hidden">
+        <h2>Join CampusVoice</h2>
+        <p class="muted">Create your student account.</p>
+        <label for="regName">Full name</label>
+        <input id="regName" required maxlength="80" placeholder="Your full name">
+        <label for="regId">Student ID</label>
+        <input id="regId" required maxlength="40" placeholder="Your student ID">
+        <label for="regEmail">School email</label>
+        <input id="regEmail" type="email" required maxlength="120" placeholder="you@school.edu">
+        <label for="regPassword">Password</label>
+        <input id="regPassword" type="password" minlength="6" required placeholder="At least 6 characters">
+        <label for="regConfirm">Confirm password</label>
+        <input id="regConfirm" type="password" required placeholder="Repeat password">
+        <button class="btn primary full" type="submit">Create account</button>
+        <p class="form-note">Already registered? <a href="#" onclick="switchAuth('login');return false">Log in</a></p>
+      </form>
+      <p id="authMessage" class="message" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- ================= STUDENT APP ================= -->
+  <div id="studentApp" class="shell hidden">
+    <aside class="sidebar">
+      <a class="brand" href="#"><span class="logo">CV</span> CampusVoice</a>
+      <div class="side-heading">WORKSPACE</div>
+      <button class="nav active" data-page="wall" onclick="showPage('wall')"><i>▦</i> Idea wall</button>
+      <button class="nav" data-page="myideas" onclick="showPage('myideas')"><i>✦</i> My activity</button>
+      <button class="nav" data-page="notifications" onclick="showPage('notifications')"><i>🔔</i> Notifications <b id="notificationCount" class="count"></b></button>
+      <div class="profile-box">
+        <div class="avatar" id="avatar">S</div>
+        <div><strong id="profileName">Student</strong><small>Student account</small></div>
+      </div>
+      <button class="nav logout" onclick="logout()"><i>↪</i> Log out</button>
+    </aside>
+
+    <div class="content">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">STUDENT COMMUNITY</p>
+          <h1 id="pageTitle">Idea wall</h1>
+        </div>
+        <button class="btn primary" onclick="openIdeaForm()">＋ Share an idea</button>
+      </div>
+
+      <!-- Idea wall -->
+      <section id="wallView" class="view">
+        <div class="banner">
+          <div>
+            <p class="eyebrow light">YOUR VOICE MATTERS</p>
+            <h2>Hi, <span id="welcomeName">there</span> 👋</h2>
+            <p>What should we improve next? Share a suggestion or support an idea that could make campus life better.</p>
+          </div>
+          <div class="banner-symbol">✳</div>
+        </div>
+
+        <div class="stats">
+          <div class="stat-card"><span>💡</span><div><small>Total ideas</small><strong id="statIdeas">0</strong></div></div>
+          <div class="stat-card"><span>🚀</span><div><small>Implemented</small><strong id="statDone">0</strong></div></div>
+          <div class="stat-card"><span>👍</span><div><small>Community votes</small><strong id="statVotes">0</strong></div></div>
+        </div>
+
+         <div id="trendStrip"></div>
+
+        <div id="catChips" class="chips"></div>
+
+        <div class="filters">
+          <input id="searchIdeas" placeholder="⌕  Search ideas…" oninput="renderIdeas()">
+          <select id="statusFilter" onchange="renderIdeas()">
+            <option value="">All statuses</option>
+            <option value="Open">Pending</option>
+            <option>Under Review</option>
+            <option>Approved</option>
+            <option>Rejected</option>
+            <option>Implemented</option>
+          </select>
+          <select id="sortFilter" onchange="renderIdeas()">
+            <option value="trending">Trending</option>
+            <option value="top">Top voted</option>
+            <option value="newest">Newest</option>
+          </select>
+        </div>
+        <div id="ideaList" class="idea-list"></div>
+        <div id="loadMoreWrap" class="load-more-wrap"></div>
+      </section>
+
+      <!-- My activity -->
+      <section id="myideasView" class="view hidden">
+        <div id="myActivityList"></div>
+      </section>
+
+      <!-- Notifications -->
+      <section id="notificationsView" class="view hidden">
+        <div class="section-title"><div><h2>Notifications</h2><p class="muted">Updates about ideas you posted or supported.</p></div></div>
+        <div id="notificationList" class="idea-list"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ================= ADMIN APP (separate from students) ================= -->
+  <div id="adminApp" class="shell admin-shell hidden">
+    <aside class="sidebar">
+      <a class="brand" href="#"><span class="logo">CV</span> CampusVoice</a>
+      <div class="side-heading">ADMIN CONSOLE</div>
+      <button class="nav active" data-apage="overview" onclick="showAdminPage('overview')"><i>◈</i> Overview</button>
+      <button class="nav" data-apage="queue" onclick="showAdminPage('queue')"><i>⏳</i> Review queue <b id="queueBadge" class="count"></b></button>
+      <button class="nav" data-apage="all" onclick="showAdminPage('all')"><i>☰</i> All suggestions</button>
+      <button class="nav" data-apage="students" onclick="showAdminPage('students')"><i>👥</i> Students</button>
+      <div class="profile-box">
+        <div class="avatar">A</div>
+        <div><strong id="adminName">Admin</strong><small>Administrator</small></div>
+      </div>
+      <button class="nav logout" onclick="logout()"><i>↪</i> Log out</button>
+    </aside>
+
+    <div class="content">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">ADMINISTRATION</p>
+          <h1 id="adminTitle">Overview</h1>
+        </div>
+        <button class="btn secondary" onclick="exportCSV()">⬇ Export CSV</button>
+      </div>
+
+      <!-- Overview -->
+      <section id="ap-overview" class="view">
+        <div class="admin-hero">
+          <div>
+            <p class="eyebrow light">SUGGESTION MANAGEMENT</p>
+            <h2><span id="ovPending">0</span> suggestions waiting for your decision</h2>
+            <p>Every suggestion deserves a fair review. Approve good ideas, explain rejections, and track what gets built.</p>
+            <button class="btn light" onclick="showAdminPage('queue')">Open review queue →</button>
+          </div>
+          <div class="rate">
+            <strong id="ovRate">0%</strong>
+            <small>approval rate</small>
+            <div class="meter"><i id="ovMeter"></i></div>
+          </div>
+        </div>
+
+        <div id="ovStats" class="a-stats"></div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <h3>Suggestions by category</h3>
+            <div id="ovCategories"></div>
+          </div>
+          <div class="panel">
+            <h3>Most supported — waiting</h3>
+            <div id="ovTop"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Recent activity</h3>
+          <div id="ovRecent"></div>
+        </div>
+      </section>
+
+      <!-- Review queue -->
+      <section id="ap-queue" class="view hidden">
+        <div class="filters admin-filters">
+          <input id="queueSearch" placeholder="⌕  Search pending suggestions…" oninput="renderQueue()">
+          <select id="queueSort" onchange="renderQueue()">
+            <option value="votes">Most supported</option>
+            <option value="oldest">Oldest first</option>
+            <option value="newest">Newest first</option>
+          </select>
+        </div>
+        <p id="queueCount" class="muted small"></p>
+        <div id="queueList" class="idea-list"></div>
+      </section>
+
+      <!-- All suggestions -->
+      <section id="ap-all" class="view hidden">
+        <div class="filters">
+          <input id="allSearch" placeholder="⌕  Search all suggestions…" oninput="renderAll()">
+          <select id="allStatus" onchange="renderAll()">
+            <option value="">All statuses</option>
+            <option value="Open">Pending</option>
+            <option>Under Review</option>
+            <option>Approved</option>
+            <option>Rejected</option>
+            <option>Implemented</option>
+          </select>
+          <select id="allCategory" onchange="renderAll()">
+            <option value="">All categories</option>
+            <option>Event</option><option>Canteen</option><option>Library</option>
+            <option>Facilities</option><option>Academics</option><option>Other</option>
+          </select>
+          <select id="allSort" onchange="renderAll()">
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="votes">Most supported</option>
+          </select>
+        </div>
+        <p id="allCount" class="muted small"></p>
+        <div id="allList" class="idea-list"></div>
+      </section>
+
+      <!-- Students -->
+      <section id="ap-students" class="view hidden">
+        <div id="studentGrid" class="student-grid"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ================= SHARE IDEA MODAL (students) ================= -->
+  <div id="ideaModal" class="modal hidden">
+    <div class="modal-card">
+      <button class="close" onclick="closeIdeaForm()" aria-label="Close">×</button>
+      <h2>Share a campus idea</h2>
+      <p class="muted">Your suggestion could make a difference.</p>
+      <form id="ideaForm">
+        <label for="ideaTitle">Idea title</label>
+        <input id="ideaTitle" maxlength="100" required placeholder="Give your idea a clear title">
+        <label for="ideaCategory">Category</label>
+        <select id="ideaCategory" required>
+          <option value="">Choose a category</option>
+          <option>Event</option><option>Canteen</option><option>Library</option>
+          <option>Facilities</option><option>Academics</option><option>Other</option>
+        </select>
+        <label for="ideaDescription">Description <span id="descCount" class="muted small">0/1500</span></label>
+        <textarea id="ideaDescription" maxlength="1500" required rows="5" placeholder="Explain your suggestion and how it could help…"></textarea>
+        <div id="duplicateResults" class="duplicate-box hidden"></div>
+        <label for="ideaPhoto">Optional photo</label>
+        <input id="ideaPhoto" type="file" accept="image/*">
+        <label class="check-row"><input id="ideaAnonymous" type="checkbox"> Post anonymously</label>
+        <button class="btn primary full" type="submit">Post idea</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= ADMIN DECISION MODAL ================= -->
+  <div id="decisionModal" class="modal hidden">
+    <div class="modal-card">
+      <button class="close" onclick="closeDecision()" aria-label="Close">×</button>
+      <h2 id="decisionTitle">Decision</h2>
+      <p id="decisionIdea" class="muted"></p>
+      <div id="decisionBody"></div>
+      <button id="decisionSubmit" class="btn primary full" onclick="submitDecision()">Confirm</button>
+    </div>
+  </div>
+
+  <button id="toTop" class="to-top hidden" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
+  <div id="toast" class="toast hidden" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>

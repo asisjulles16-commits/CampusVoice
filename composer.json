@@ -1,0 +1,10 @@
+{
+  "name": "campusvoice/app",
+  "description": "CampusVoice student idea wall",
+  "require": {
+    "php": ">=8.2",
+    "ext-pdo": "*",
+    "ext-pdo_mysql": "*",
+    "ext-mbstring": "*"
+  }
+}
